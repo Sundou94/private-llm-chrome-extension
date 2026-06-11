@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Private LLM Assistant</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="../popup/popup.css">
+  <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
 
@@ -13,7 +14,6 @@
     <span class="header-title">Private LLM</span>
   </div>
   <div class="header-actions">
-    <button id="pinBtn" class="icon-btn" title="사이드 패널에 고정">&#128204;</button>
     <button id="settingsBtn" class="icon-btn" title="설정">&#9881;</button>
   </div>
 </div>
@@ -55,8 +55,8 @@
       />
       <button id="askBtn" class="btn btn-primary ask-btn">질문</button>
     </div>
-    <div id="qaError"      class="error-msg hidden"></div>
-    <div id="chatHistory"  class="chat-history"></div>
+    <div id="qaError"     class="error-msg hidden"></div>
+    <div id="chatHistory" class="chat-history"></div>
   </div>
 
   <!-- ── 내보내기 탭 ── -->
@@ -78,12 +78,12 @@
 
 </div>
 
-<!-- Loading overlay -->
+<!-- Loading overlay (Q&A, 내보내기 전용) -->
 <div id="loading" class="loading hidden">
   <div class="spinner"></div>
   <span id="loadingText" class="loading-text">처리 중...</span>
 </div>
 
-<script type="module" src="popup.js"></script>
+<script type="module" src="../popup/popup.js"></script>
 </body>
 </html>

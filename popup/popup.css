@@ -35,6 +35,12 @@ body {
   letter-spacing: -0.3px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
 .icon-btn {
   background: rgba(255,255,255,0.15);
   border: none;
@@ -48,6 +54,25 @@ body {
 }
 
 .icon-btn:hover { background: rgba(255,255,255,0.28); }
+
+/* ── Inline spinner (요약 버튼 내부) ── */
+.inline-spin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.30);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin: 0 5px 1px;
+}
+
+#summarizeTimer {
+  font-size: 11px;
+  opacity: 0.88;
+  vertical-align: middle;
+}
 
 /* ── Status bar ── */
 .status-bar {

@@ -4,8 +4,9 @@ import { htmlToMarkdown } from '../utils/markdown.js';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let settings = {};
-let cachedContent = null;   // extracted from current page
-let cachedChunks = null;    // chunked text for RAG
+let cachedContent = null;
+let cachedChunks  = null;
+let _summarizeTimer = null;
 
 // ── Init ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -20,10 +21,10 @@ function renderApiStatus() {
   const dot  = document.getElementById('statusDot');
   const text = document.getElementById('statusText');
   if (settings.baseUrl && settings.apiKey) {
-    dot.className  = 'status-dot ok';
+    dot.className    = 'status-dot ok';
     text.textContent = `연결됨: ${settings.model || 'gpt-3.5-turbo'}`;
   } else {
-    dot.className  = 'status-dot error';
+    dot.className    = 'status-dot error';
     text.textContent = 'API 미설정 — ⚙ 버튼을 눌러 설정하세요';
   }
 }
@@ -44,6 +45,17 @@ function setupTabs() {
 function setupButtons() {
   document.getElementById('settingsBtn').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
+  });
+
+  // 사이드 패널 고정 버튼
+  document.getElementById('pinBtn')?.addEventListener('click', async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      await chrome.sidePanel.open({ windowId: tab.windowId });
+      window.close();
+    } catch (err) {
+      console.error('사이드 패널 오류:', err);
+    }
   });
 
   document.getElementById('summarizeBtn').addEventListener('click', handleSummarize);
@@ -80,20 +92,20 @@ async function getContent() {
   return cachedContent;
 }
 
-// Serialized and injected into the page context — must be self-contained
+// 페이지 컨텍스트에서 실행되는 함수 — 외부 참조 불가
 function extractFn() {
-  const title = document.title || '';
-  const url   = location.href;
-  const metaDesc = document.querySelector('meta[name="description"]');
+  const title      = document.title || '';
+  const url        = location.href;
+  const metaDesc   = document.querySelector('meta[name="description"]');
   const description = metaDesc?.content || '';
 
-  const mainSelectors = [
+  const selectors = [
     'main', 'article', '[role="main"]',
     '#content', '#main', '.content',
     '.post-content', '.article-body', '.entry-content'
   ];
   let root = null;
-  for (const sel of mainSelectors) {
+  for (const sel of selectors) {
     root = document.querySelector(sel);
     if (root) break;
   }
@@ -120,6 +132,31 @@ function extractFn() {
   return { title, url, description, htmlContent, textContent };
 }
 
+// ── 요약 인라인 타이머 ─────────────────────────────────────────────────────
+function startSummarizeTimer() {
+  const start     = Date.now();
+  const labelEl   = document.getElementById('summarizeLabel');
+  const loaderEl  = document.getElementById('summarizeLoader');
+  const timerEl   = document.getElementById('summarizeTimer');
+
+  labelEl.classList.add('hidden');
+  loaderEl.classList.remove('hidden');
+  timerEl.textContent = '(생각중.. 0초)';
+
+  _summarizeTimer = setInterval(() => {
+    const secs = Math.floor((Date.now() - start) / 1000);
+    timerEl.textContent = `(생각중.. ${secs}초)`;
+  }, 500);
+}
+
+function stopSummarizeTimer() {
+  clearInterval(_summarizeTimer);
+  _summarizeTimer = null;
+  document.getElementById('summarizeLabel')?.classList.remove('hidden');
+  document.getElementById('summarizeLoader')?.classList.add('hidden');
+  document.getElementById('summarizeTimer').textContent = '(생각중.. 0초)';
+}
+
 // ── Summarize ──────────────────────────────────────────────────────────────
 async function handleSummarize() {
   const btn    = document.getElementById('summarizeBtn');
@@ -129,7 +166,7 @@ async function handleSummarize() {
   result.classList.add('hidden');
   errBox.classList.add('hidden');
   btn.disabled = true;
-  showLoading('페이지 내용 분석 중...');
+  startSummarizeTimer();          // ← 버튼 내 인라인 타이머 시작
 
   try {
     const content = await getContent();
@@ -138,7 +175,6 @@ async function handleSummarize() {
       ? content.textContent.slice(0, maxChars) + '\n\n...(이하 생략)'
       : content.textContent;
 
-    updateLoading('LLM 응답 대기 중...');
     const summary = await callLLM([
       {
         role: 'system',
@@ -157,16 +193,16 @@ async function handleSummarize() {
     errBox.textContent = err.message;
     errBox.classList.remove('hidden');
   } finally {
-    hideLoading();
+    stopSummarizeTimer();          // ← 버튼 텍스트 복원
     btn.disabled = false;
   }
 }
 
 // ── Q&A (RAG) ──────────────────────────────────────────────────────────────
 async function handleAsk() {
-  const input   = document.getElementById('questionInput');
-  const askBtn  = document.getElementById('askBtn');
-  const errBox  = document.getElementById('qaError');
+  const input    = document.getElementById('questionInput');
+  const askBtn   = document.getElementById('askBtn');
+  const errBox   = document.getElementById('qaError');
   const question = input.value.trim();
   if (!question) return;
 
@@ -241,8 +277,8 @@ async function handleExport() {
   showLoading('Markdown 변환 중...');
 
   try {
-    const content   = await getContent();
-    const withMeta  = document.getElementById('includeMetadata').checked;
+    const content  = await getContent();
+    const withMeta = document.getElementById('includeMetadata').checked;
 
     let md = '';
     if (withMeta) {

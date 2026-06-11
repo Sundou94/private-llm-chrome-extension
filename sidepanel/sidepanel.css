@@ -1,0 +1,13 @@
+/* 사이드 패널 전용 레이아웃 재정의 */
+body {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 320px;
+}
+
+/* 사이드 패널에서는 핀 버튼 불필요 */
+#pinBtn { display: none !important; }
+
+/* 사이드 패널에서는 결과 박스와 대화 기록을 더 길게 허용 */
+.result-box   { max-height: 480px; }
+.chat-history { max-height: 600px; }
