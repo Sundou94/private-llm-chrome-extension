@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>설정 - Private LLM Assistant</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-row">
+      <span class="logo">&#9671;</span>
+      <h1>Private LLM — API 설정</h1>
+    </div>
+    <p class="subtitle">OpenAI 호환 LLM 서버 연결 정보를 입력하세요.</p>
+  </header>
+
+  <main>
+    <div class="form-group">
+      <label for="baseUrl">Base URL <span class="req">*</span></label>
+      <input
+        type="text"
+        id="baseUrl"
+        class="form-input"
+        placeholder="http://192.168.1.100:8000"
+        autocomplete="off"
+      />
+      <span class="hint">
+        서버 주소를 입력하세요. <code>/v1</code>로 끝나면 그대로 사용, 아니면 자동으로 <code>/v1</code>을 추가합니다.<br>
+        예: <code>http://llm-server:8000</code> &nbsp;/&nbsp; <code>http://llm-server/api</code>
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="apiKey">API Key <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input
+          type="password"
+          id="apiKey"
+          class="form-input"
+          placeholder="sk-..."
+          autocomplete="off"
+        />
+        <button type="button" id="toggleKey" class="toggle-key" title="보이기/숨기기">&#128065;</button>
+      </div>
+      <span class="hint">API Key는 브라우저 로컬 스토리지에만 저장되며, 외부로 전송되지 않습니다.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="model">모델 이름</label>
+      <input
+        type="text"
+        id="model"
+        class="form-input"
+        placeholder="gpt-3.5-turbo"
+        autocomplete="off"
+      />
+      <span class="hint">서버에서 제공하는 모델 이름 (기본값: gpt-3.5-turbo)</span>
+    </div>
+
+    <div class="form-group">
+      <label for="maxTokens">최대 응답 토큰</label>
+      <input
+        type="number"
+        id="maxTokens"
+        class="form-input"
+        placeholder="2000"
+        min="100"
+        max="32000"
+      />
+      <span class="hint">100~32000 (기본값: 2000)</span>
+    </div>
+
+    <div class="btn-row">
+      <button id="saveBtn"  class="btn btn-primary">저장</button>
+      <button id="testBtn"  class="btn btn-secondary">연결 테스트</button>
+      <button id="clearBtn" class="btn btn-danger">초기화</button>
+    </div>
+
+    <div id="statusMsg" class="status-msg hidden"></div>
+
+    <section class="info-section">
+      <h3>사용 방법</h3>
+      <ol>
+        <li>내부 LLM 서버의 Base URL을 입력합니다.</li>
+        <li>API Key를 입력합니다 (서버가 키를 요구하지 않아도 임의 값 입력).</li>
+        <li>모델 이름을 입력합니다.</li>
+        <li><strong>저장</strong> 후 <strong>연결 테스트</strong>로 확인합니다.</li>
+        <li>브라우저 팝업에서 요약 / Q&amp;A / 내보내기를 사용합니다.</li>
+      </ol>
+      <div class="security-note">
+        &#128274; API Key는 <code>chrome.storage.local</code>에 저장되며 해당 브라우저 프로필에만 접근 가능합니다.
+        외부 서버로 전송되지 않습니다.
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="options.js"></script>
+</body>
+</html>

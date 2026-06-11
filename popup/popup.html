@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Private LLM Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <span class="header-logo">&#9671;</span>
+    <span class="header-title">Private LLM</span>
+  </div>
+  <button id="settingsBtn" class="icon-btn" title="설정">&#9881;</button>
+</div>
+
+<div class="status-bar">
+  <span id="statusDot" class="status-dot"></span>
+  <span id="statusText">설정 확인 중...</span>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="summary">&#128196; 요약</button>
+  <button class="tab-btn"        data-tab="qa">&#128172; Q&amp;A</button>
+  <button class="tab-btn"        data-tab="export">&#8659; 내보내기</button>
+</nav>
+
+<div class="tab-content">
+
+  <!-- ── 요약 탭 ── -->
+  <div id="tab-summary" class="tab-panel active">
+    <button id="summarizeBtn" class="btn btn-primary">현재 페이지 요약하기</button>
+    <div id="summaryResult" class="result-box hidden"></div>
+    <div id="summaryError"  class="error-msg hidden"></div>
+  </div>
+
+  <!-- ── Q&A 탭 ── -->
+  <div id="tab-qa" class="tab-panel hidden">
+    <div class="input-row">
+      <input
+        id="questionInput"
+        class="question-input"
+        type="text"
+        placeholder="이 페이지에 대해 질문하세요..."
+        autocomplete="off"
+      />
+      <button id="askBtn" class="btn btn-primary ask-btn">질문</button>
+    </div>
+    <div id="qaError"      class="error-msg hidden"></div>
+    <div id="chatHistory"  class="chat-history"></div>
+  </div>
+
+  <!-- ── 내보내기 탭 ── -->
+  <div id="tab-export" class="tab-panel hidden">
+    <div class="info-card">
+      현재 페이지를 <strong>Markdown (.md)</strong> 파일로 저장합니다.<br>
+      다운로드 폴더에 자동으로 저장됩니다.
+    </div>
+    <div class="export-options">
+      <label class="check-label">
+        <input type="checkbox" id="includeMetadata" checked>
+        메타데이터 포함 (제목, URL, 저장일시)
+      </label>
+    </div>
+    <button id="exportBtn" class="btn btn-primary">Markdown으로 내보내기</button>
+    <div id="exportResult" class="hidden"></div>
+    <div id="exportError"  class="error-msg hidden"></div>
+  </div>
+
+</div>
+
+<!-- Loading overlay -->
+<div id="loading" class="loading hidden">
+  <div class="spinner"></div>
+  <span id="loadingText" class="loading-text">처리 중...</span>
+</div>
+
+<script type="module" src="popup.js"></script>
+</body>
+</html>
